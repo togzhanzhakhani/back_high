@@ -1,4 +1,4 @@
-# Report
+# Assignment 2 Report
 ## Exercise 1: Database Design and Optimization
 ### Objective
 The primary goal of this exercise is to design an efficient database schema for a simple blog application using Django and to optimize the queries for improved performance.
