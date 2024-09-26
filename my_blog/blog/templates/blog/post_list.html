@@ -7,20 +7,54 @@
 <body>
     <h1>Blog Posts</h1>
 
+    <form method="get">
+        <div>
+            <label for="author">Filter by Author:</label>
+            <select name="author" id="author">
+                <option value="">All Authors</option>
+                {% for author in authors %}
+                    <option value="{{ author.id }}" {% if selected_author|stringformat:"s" == author.id|stringformat:"s" %}selected{% endif %}>
+                        {{ author.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <div>
+            <label for="tag">Filter by Tag:</label>
+            <select name="tag" id="tag">
+                <option value="">All Tags</option>
+                {% for tag in tags %}
+                    <option value="{{ tag.id }}" {% if selected_tag|stringformat:"s" == tag.id|stringformat:"s" %}selected{% endif %}>
+                        {{ tag.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <button type="submit">Filter</button>
+    </form>    
+
     <ul>
         {% for post in page_obj %}
-            <li><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></li>
-        {% empty %}
-            <li>No posts available.</li>
+            <li>
+                <h2><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h2>
+                <p>By {{ post.author.username }} on {{ post.created_at|date:"Y-m-d H:i" }}</p>
+                <p>{{ post.content|truncatewords:30 }}</p>
+                <p>Tags:
+                    {% for tag in post.tags.all %}
+                        <span>{{ tag.name }}</span>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            </li>
         {% endfor %}
     </ul>
 
-    <!-- Навигация по страницам -->
     <div class="pagination">
         <span class="step-links">
             {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                <a href="?page=1{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}">previous</a>
             {% endif %}
 
             <span class="current">
@@ -28,8 +62,8 @@
             </span>
 
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">next</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                <a href="?page={{ page_obj.next_page_number }}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if selected_author %}&author={{ selected_author }}{% endif %}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}">last &raquo;</a>
             {% endif %}
         </span>
     </div>
