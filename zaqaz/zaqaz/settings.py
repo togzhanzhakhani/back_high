@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'custom_auth',
     'rest_framework_simplejwt',
     'products',
+    'orders',
 ]
 
 AUTH_USER_MODEL = 'custom_auth.CustomUser'
