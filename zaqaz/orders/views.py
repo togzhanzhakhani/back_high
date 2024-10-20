@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import Order
 from .serializers import OrderSerializer
+from django.core.cache import cache
 
 class OrderCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -17,13 +18,19 @@ class OrderCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request):
-        orders = Order.objects.filter(user=request.user)
+        cache_key = f'order_list_{request.user.id}'
+        orders = cache.get(cache_key)
+
+        if not orders:
+            orders = Order.objects.filter(user=request.user)
+            cache.set(cache_key, list(orders), timeout=60 * 15)
+
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class OrderDetailView(APIView):
     def get(self, request, pk):
-        order = get_object_or_404(Order, pk=pk, user=request.user)  
+        order = get_object_or_404(Order.objects.select_related('user').prefetch_related('order_items__product'), pk=pk, user=request.user)  
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
@@ -42,7 +49,13 @@ class AdminOrderListView(APIView):
     permission_classes = [IsAdminUser]  
 
     def get(self, request):
-        orders = Order.objects.all()
+        cache_key = 'admin_order_list'
+        orders = cache.get(cache_key)
+
+        if not orders:
+            orders = Order.objects.all()
+            cache.set(cache_key, list(orders), timeout=60 * 15) 
+
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -62,6 +75,7 @@ class OrderStatusUpdateView(APIView):
             order.is_paid = True 
         order.save()
 
+        cache.delete(f'admin_order_list')
         return Response(OrderSerializer(order).data)
     
 
@@ -76,4 +90,5 @@ class OrderCancelView(APIView):
         order.status = 'cancelled'
         order.save()
 
+        cache.delete(f'order_list_{request.user.id}')
         return Response({"status": "cancelled"})

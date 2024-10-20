@@ -25,7 +25,7 @@ class Product(models.Model):
         indexes = [
             models.Index(fields=['shop']),
             models.Index(fields=['category']),
-            models.Index(fields=['discount']),
+            models.Index(fields=['shop', 'category']),
         ]
 
     def save(self, *args, **kwargs):

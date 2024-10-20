@@ -6,7 +6,6 @@ from .models import CustomUser
 from .serializers import UserSerializer, LoginSerializer, UserOutputSerializer
 from rest_framework.permissions import IsAuthenticated
 
-
 class RegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
