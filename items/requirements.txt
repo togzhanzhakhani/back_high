@@ -1,0 +1,8 @@
+Django>=4.2,<5.0
+djangorestframework>=3.14,<4.0
+requests
+pytest
+pytest-django
+psycopg2-binary>=2.9,<3.0
+django-prometheus
+python-logstash
