@@ -1,0 +1,8 @@
+<h2>Welcome, {{ user.username }}!</h2>
+<p>Your role is: {{ user.role }}</p>
+
+{% if not user.two_factor_enabled %}
+    <p><a href="{% url 'enable_2fa' %}">Enable 2FA</a></p>
+{% endif %}
+
+<p><a href="{% url 'logout' %}">Logout</a></p>

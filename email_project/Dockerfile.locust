@@ -1,0 +1,13 @@
+FROM python:3.9-slim
+
+# Install Locust and other dependencies
+RUN pip install locust
+
+# Set up Locust working directory
+WORKDIR /locust
+
+# Copy Locust files (for example, your test file)
+COPY locustfile.py /locust/locustfile.py
+
+# Default command to run Locust
+CMD ["locust", "-f", "locustfile.py"]
